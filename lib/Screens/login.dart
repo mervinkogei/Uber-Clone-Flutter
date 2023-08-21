@@ -1,52 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:uberclone/Screens/register.dart';
 
 class LoginScreen extends StatefulWidget {
-  LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+TextEditingController  email = TextEditingController();
+TextEditingController  password = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Text"),
-      //   centerTitle: true,
-      // ),
       backgroundColor: Colors.white,
       body: Column(
         children:  [
-          SizedBox(height: 45,),
-          Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
-          SizedBox(height: 1,),
-          Text("Login as Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
-          Padding(padding: EdgeInsets.all(20),
+          const SizedBox(height: 45,),
+          const Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
+          const SizedBox(height: 1,),
+          const Text("Login as Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
+          Padding(padding: const EdgeInsets.all(20),
           child: Column(
             children:  [
-          SizedBox(height: 1,),
+          const SizedBox(height: 1,),
           TextField(
+            controller: email,
             keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Email',
               labelStyle: TextStyle(fontSize: 14),
               hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
             ),
           ),
-          SizedBox(height: 1,),
+          const SizedBox(height: 1,),
           TextField(
+            controller: password,
             obscureText: true,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Password',
               labelStyle: TextStyle(fontSize: 14),
               hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
             ),
           ),
-          SizedBox(height: 15,),
+          const SizedBox(height: 15,),
           SizedBox(child: InkWell(
-            onTap: (){print("Logged in Button cliked");},
+            onTap: (){},
             child: Container(
                 decoration: BoxDecoration(
                   color: Colors.yellow,
@@ -61,7 +62,8 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),),
           TextButton(onPressed: (){
-            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
+            // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
+            Navigator.pushNamedAndRemoveUntil(context, '/register', (route) => false);
           }, child: const Text("Don't have an account? Register Here", style: TextStyle(color: Colors.black),))
         ],
       )

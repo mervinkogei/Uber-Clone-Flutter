@@ -1,73 +1,95 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:uberclone/Screens/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:uberclone/main.dart';
 
 class RegisterScreen extends StatefulWidget {
-  RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({Key? key}) : super(key: key);
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+
+TextEditingController name = TextEditingController();
+TextEditingController email = TextEditingController();
+TextEditingController phone = TextEditingController();
+TextEditingController password= TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text("Text"),
-      //   centerTitle: true,
-      // ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children:  [
-              SizedBox(height: 45,),
-              Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
-              SizedBox(height: 1,),
-              Text("Register as a Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
-              Padding(padding: EdgeInsets.all(20),
+              const SizedBox(height: 45,),
+              const Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
+              const SizedBox(height: 1,),
+              const Text("Register as a Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
+              Padding(padding: const EdgeInsets.all(20),
               child: Column(
                 children:  [
-                  SizedBox(height: 1,),
+              const SizedBox(height: 1,),
               TextField(
+                controller: name,
                 keyboardType: TextInputType.text,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Name',
                   labelStyle: TextStyle(fontSize: 14),
                   hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
                 ),
               ),
-              SizedBox(height: 1,),
+              const SizedBox(height: 1,),
               TextField(
+                controller: email,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                   labelStyle: TextStyle(fontSize: 14),
                   hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
                 ),
               ),
-              SizedBox(height: 1,),
+              const SizedBox(height: 1,),
               TextField(
+                controller: phone,
                 keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Phone',
                   labelStyle: TextStyle(fontSize: 14),
                   hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
                 ),
               ),
-              SizedBox(height: 1,),
+              const SizedBox(height: 1,),
               TextField(
+                controller: password,
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                   labelStyle: TextStyle(fontSize: 14),
                   hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
                 ),
               ),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               SizedBox(child: InkWell(
-                onTap: (){print("Logged in Button cliked");},
+                onTap: (){
+                  if(name.text.length <5){
+                   displayToastMessage(context, "Name must be atleast 3 characters");
+                  }else if(!email.text.contains("@")){
+                    displayToastMessage(context, "Email address isn't valid");
+                  }else if(phone.text.isEmpty){
+                    displayToastMessage(context, "Phone number is required");
+                  }else if(password.text.length < 7){
+                    displayToastMessage(context, "Password must be atleast 6 characters");
+                  }else{
+                    registerUser(context);
+                  }
+                  
+                },
                 child: Container(
                     decoration: BoxDecoration(
                       color: Colors.yellow,
@@ -82,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ],
               ),),
               TextButton(onPressed: (){
-                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>LoginScreen()));
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
               }, child: const Text("Already have an account? Login Here", style: TextStyle(color: Colors.black),))
             ],
           ),
@@ -91,4 +113,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
       
     );
   }
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  registerUser(BuildContext context) async{
+    final User? firebaseUser = (await _firebaseAuth.createUserWithEmailAndPassword(email: email.text, password: password.text).
+    catchError((onError){
+      displayToastMessage(context, "Error: $onError");
+    })).user;
+    if(firebaseUser !=null){//user Created
+    //Save User info to database
+    
+    Map userDataMap = {
+      "name" : name.text.trim(),
+      "phone" : phone.text.trim(),
+      "email" : email.text.trim(),
+    };
+    usersRef.child(firebaseUser.uid).set(userDataMap);
+    // ignore: use_build_context_synchronously
+    displayToastMessage(context, "Congratulations, your account has been created Successfully");
+    // ignore: use_build_context_synchronously
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+
+    }else{
+      //error encountered - Display error message
+      // ignore: use_build_context_synchronously
+      displayToastMessage(context, "User has not been created");
+    }
+  }  
 }
+
+displayToastMessage(BuildContext context, String message) async{
+    Fluttertoast.showToast(msg: message);
+  }
