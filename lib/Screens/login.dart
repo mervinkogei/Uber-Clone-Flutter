@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uberclone/Screens/register.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
@@ -60,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),),
           TextButton(onPressed: (){
-            print("Clicked");
+            Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
           }, child: const Text("Don't have an account? Register Here", style: TextStyle(color: Colors.black),))
         ],
       )
