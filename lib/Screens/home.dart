@@ -16,6 +16,8 @@ class _HomeScreenState extends State<HomeScreen> {
       Completer<GoogleMapController>();
     late GoogleMapController newGoogleMapController;
 
+    GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
@@ -24,8 +26,57 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: const Text('Home Screen'),
+      ),
+      drawer: Container(
+        color: Colors.white,
+        width: 255,
+        child: Drawer(
+          child: ListView(
+            //Add drawer list
+            children: [
+              Container(
+                height: 165,
+                child: DrawerHeader(
+                  decoration:const BoxDecoration(
+                    color: Colors.white
+                  ),
+                  child: Row(
+                    children: [
+                      Image.asset("images/user_icon.png", height: 65,width: 65,),
+                      const SizedBox(width: 16,),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Text('Profile Name', style: TextStyle(fontFamily: 'Brand-Bold', fontSize: 16)),
+                          SizedBox(height: 6,),
+                          Text('Visit Profile')
+                        ],
+                      )
+                    ],
+                  )),
+              ),
+              const DividerWidget(),
+              const SizedBox(height: 12),
+              //Draver Border
+              ListTile(
+                leading: Icon(Icons.history),
+                title: Text('History', style: TextStyle(fontSize: 15),),
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Visit Profile', style: TextStyle(fontSize: 15),),
+              ),
+              ListTile(
+                leading: Icon(Icons.info),
+                title: Text('About', style: TextStyle(fontSize: 15),),
+              ),
+              
+            ],
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -36,6 +87,26 @@ class _HomeScreenState extends State<HomeScreen> {
               
             },
             ),
+
+            //HamburgerButton for drawer
+            Positioned(
+              top: 45, left: 22,
+              child: GestureDetector(
+                onTap: (){scaffoldKey.currentState!.openDrawer();},
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22,),
+                    boxShadow: [BoxShadow(color: Colors.black, blurRadius: 6, spreadRadius: 0.5, offset: Offset(0.7, 0.7))],
+                  ),
+                  child: CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.menu, color: Colors.black,),),
+                ),
+              ),
+            ),
+
             Positioned(
               left: 0, right: 0, bottom: 0,
               child: Container(
@@ -50,20 +121,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 6,),
-                      Text('Hi, there', style: TextStyle(fontSize: 12)),
-                      Text('Where to?', style: TextStyle(fontSize: 20, fontFamily: 'Brand Bold'),),
-                      SizedBox(height: 6,),
+                      const SizedBox(height: 6,),
+                      const Text('Hi, there', style: TextStyle(fontSize: 12)),
+                      const Text('Where to?', style: TextStyle(fontSize: 20, fontFamily: 'Brand Bold'),),
+                      const SizedBox(height: 6,),
                       Container(
                         decoration: BoxDecoration(
                   color: Colors.white,
-                  boxShadow: [BoxShadow(color: Colors.black54, blurRadius: 6, spreadRadius: 0.5, offset: Offset(0.7,0.7))],
+                  boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 6, spreadRadius: 0.5, offset: Offset(0.7,0.7))],
                   borderRadius: BorderRadius.circular(5)
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
-                    children: [
+                    children: const [
                       Icon(Icons.search, color: Colors.blueAccent,),
                       SizedBox(width: 10),
                       Text('Search Drop Off Location')
@@ -71,14 +142,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                       ),
-                      SizedBox(height: 24,),
+                      const SizedBox(height: 24,),
                       Row(
                         children: [
-                          Icon(Icons.home, color: Colors.grey,),
-                          SizedBox(width: 12,),
+                          const Icon(Icons.home, color: Colors.grey,),
+                          const SizedBox(width: 12,),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            children: const[
                               Text("Add Home"),
                               SizedBox(height: 4,),
                               Text("Your Living home address", style: TextStyle(color: Colors.black54, fontSize: 12),),
@@ -86,16 +157,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           )
                         ],
                       ),
-                      SizedBox(height: 10,),
-                      DividerWidget(),
-                      SizedBox(height: 16,),
+                      const SizedBox(height: 10,),
+                      const DividerWidget(),
+                      const SizedBox(height: 16,),
                       Row(
                         children: [
-                          Icon(Icons.work, color: Colors.grey,),
-                          SizedBox(width: 12,),
+                          const Icon(Icons.work, color: Colors.grey,),
+                          const SizedBox(width: 12,),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                            children: const[
                               Text("Add Work"),
                               SizedBox(height: 4,),
                               Text("Your Office address", style: TextStyle(color: Colors.black54, fontSize: 12),),
