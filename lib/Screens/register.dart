@@ -132,7 +132,6 @@ TextEditingController password= TextEditingController();
       "email" : email.text.trim(),
     };
     usersRef.child(firebaseUser.uid).set(userDataMap);
-    Navigator.pop(context);
     // ignore: use_build_context_synchronously
     displayToastMessage(context, "Congratulations, your account has been created Successfully");
     // ignore: use_build_context_synchronously
@@ -140,6 +139,7 @@ TextEditingController password= TextEditingController();
 
     }else{
       //error encountered - Display error message
+      Navigator.pop(context);
       // ignore: use_build_context_synchronously
       displayToastMessage(context, "User has not been created");
     }
