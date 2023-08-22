@@ -1,4 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:uberclone/Screens/register.dart';
+import 'package:uberclone/Widgets/progressDialog.dart';
+import 'package:uberclone/main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -16,58 +21,107 @@ TextEditingController  password = TextEditingController();
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children:  [
-          const SizedBox(height: 45,),
-          const Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
-          const SizedBox(height: 1,),
-          const Text("Login as Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
-          Padding(padding: const EdgeInsets.all(20),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Column(
             children:  [
-          const SizedBox(height: 1,),
-          TextField(
-            controller: email,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              labelText: 'Email',
-              labelStyle: TextStyle(fontSize: 14),
-              hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
-            ),
-          ),
-          const SizedBox(height: 1,),
-          TextField(
-            controller: password,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Password',
-              labelStyle: TextStyle(fontSize: 14),
-              hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
-            ),
-          ),
-          const SizedBox(height: 15,),
-          SizedBox(child: InkWell(
-            onTap: (){},
-            child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.yellow,
-                border: Border.all(width: 2, color: Colors.yellow),
-                borderRadius: const BorderRadius.all(Radius.circular(50)),
-              ),             
-              height: 50,
-              width: double.infinity,
-              child: const Center(child: Text("Login", style: TextStyle(fontSize: 18, color: Colors.white),)),
-            ),
-          ))
+              const SizedBox(height: 45,),
+              const Image(image: AssetImage('images/logo.png'), width: 350,height: 250, alignment: Alignment.center,),
+              const SizedBox(height: 1,),
+              const Text("Login as Rider", style: TextStyle(fontSize: 24, fontFamily: 'Brand Bolt', ),textAlign: TextAlign.center,),
+              Padding(padding: const EdgeInsets.all(20),
+              child: Column(
+                children:  [
+              const SizedBox(height: 1,),
+              TextField(
+                controller: email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(fontSize: 14),
+                  hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
+                ),
+              ),
+              const SizedBox(height: 1,),
+              TextField(
+                controller: password,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  labelStyle: TextStyle(fontSize: 14),
+                  hintStyle: TextStyle(fontSize: 10, color: Colors.grey)
+                ),
+              ),
+              const SizedBox(height: 15,),
+              SizedBox(child: InkWell(
+                onTap: (){
+                  if(!email.text.contains("@")){
+                        displayToastMessage(context, "Email address isn't valid");
+                      }else if(password.text.isEmpty){
+                        displayToastMessage(context, "Password is required *");
+                      }else{
+                        loginAndAuthenticateUser(context);
+                      }              
+                },
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.yellow,
+                    border: Border.all(width: 2, color: Colors.yellow),
+                    borderRadius: const BorderRadius.all(Radius.circular(50)),
+                  ),             
+                  height: 50,
+                  width: double.infinity,
+                  child: const Center(child: Text("Login", style: TextStyle(fontSize: 18, color: Colors.white),)),
+                ),
+              ))
+                ],
+              ),),
+              TextButton(onPressed: (){
+                // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
+                Navigator.pushNamedAndRemoveUntil(context, '/register', (route) => false);
+              }, child: const Text("Don't have an account? Register Here", style: TextStyle(color: Colors.black),))
             ],
-          ),),
-          TextButton(onPressed: (){
-            // Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>RegisterScreen()));
-            Navigator.pushNamedAndRemoveUntil(context, '/register', (route) => false);
-          }, child: const Text("Don't have an account? Register Here", style: TextStyle(color: Colors.black),))
-        ],
+          ),
+        ),
       )
       
     );
+  }
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  void loginAndAuthenticateUser(BuildContext context) async{
+
+      showDialog(context: context, barrierDismissible: false, builder: (context){
+        return ProgressDialog(message: 'Authenticating, Please wait ....',);
+      });
+
+     final User? firebaseUser = (await _firebaseAuth.signInWithEmailAndPassword(email: email.text, password: password.text).
+    catchError((onError){
+      Navigator.pop(context);
+      displayToastMessage(context, "Error: $onError");
+    })).user;
+
+     if(firebaseUser != null){//sign-in user
+    //Save User info to database
+
+    usersRef.child(firebaseUser.uid).once().then((DatabaseEvent event){
+      DataSnapshot snap = event.snapshot;
+      if(snap.value !=null){
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        displayToastMessage(context, "You have Successfully Logged In");
+      }else{
+        Navigator.pop(context);
+        _firebaseAuth.signOut();
+      displayToastMessage(context, "No records exists for this User: Please create new account");
+      }
+    });
+
+    }else{
+      //error encountered - Display error message
+      // ignore: use_build_context_synchronously
+      Navigator.pop(context);
+      displayToastMessage(context, "Error Occured");
+    }
+
   }
 }

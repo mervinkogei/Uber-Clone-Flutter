@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:uberclone/Widgets/progressDialog.dart';
 import 'package:uberclone/main.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -115,8 +115,12 @@ TextEditingController password= TextEditingController();
   }
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   registerUser(BuildContext context) async{
+    showDialog(context: context, barrierDismissible: false, builder: (context){
+        return ProgressDialog(message: 'Authenticating, Please wait ....',);
+      });
     final User? firebaseUser = (await _firebaseAuth.createUserWithEmailAndPassword(email: email.text, password: password.text).
     catchError((onError){
+      Navigator.pop(context);
       displayToastMessage(context, "Error: $onError");
     })).user;
     if(firebaseUser !=null){//user Created
@@ -128,6 +132,7 @@ TextEditingController password= TextEditingController();
       "email" : email.text.trim(),
     };
     usersRef.child(firebaseUser.uid).set(userDataMap);
+    Navigator.pop(context);
     // ignore: use_build_context_synchronously
     displayToastMessage(context, "Congratulations, your account has been created Successfully");
     // ignore: use_build_context_synchronously
