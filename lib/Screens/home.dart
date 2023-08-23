@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uberclone/Widgets/divider.dart';
 
@@ -17,6 +18,21 @@ class _HomeScreenState extends State<HomeScreen> {
     late GoogleMapController newGoogleMapController;
 
     GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
+    late Position currentPosition;
+    var geolocator = Geolocator();
+    double bottomPaddingMap =0;
+
+    void locatePosition() async {      
+       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+       currentPosition = position;
+
+       LatLng latlongPosition =LatLng(position.latitude, position.longitude);
+
+       CameraPosition cameraPosition = CameraPosition(target: latlongPosition, zoom: 14);
+       newGoogleMapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    }
+
 
   static const CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.42796133580664, -122.085749655962),
@@ -80,11 +96,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Stack(
         children: [
-            GoogleMap(initialCameraPosition: _kGooglePlex, mapType: MapType.normal,
+            GoogleMap(
+              padding: EdgeInsets.only(bottom: bottomPaddingMap),
+            initialCameraPosition: _kGooglePlex, mapType: MapType.normal,
+            myLocationEnabled: true, zoomGesturesEnabled: true, zoomControlsEnabled: true,
             myLocationButtonEnabled: true, onMapCreated: (GoogleMapController controller) {
               _controllerGoogleMap.complete(controller);
               newGoogleMapController =controller;
-              
+
+              setState(() {
+                bottomPaddingMap = 300;
+              });
+
+              locatePosition();
             },
             ),
 
@@ -110,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Positioned(
               left: 0, right: 0, bottom: 0,
               child: Container(
-                height: 320,
+                height: 300,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   boxShadow: [BoxShadow(color: Colors.black, blurRadius: 16, spreadRadius: 0.5, offset: Offset(0.7,0.7))],
