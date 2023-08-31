@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
     final Completer<GoogleMapController> _controllerGoogleMap =
       Completer<GoogleMapController>();
     late GoogleMapController newGoogleMapController;
@@ -23,7 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
     var geolocator = Geolocator();
     double bottomPaddingMap =0;
 
-    void locatePosition() async {      
+    void locatePosition() async {     
+      
        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
        currentPosition = position;
 
@@ -38,6 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
     target: LatLng(37.42796133580664, -122.085749655962),
     zoom: 14.4746,
   );
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
